@@ -1,6 +1,42 @@
+"""
+storage.py
+
+This module provides functions for reading and writing JSON files with built-in
+support for symmetric encryption and decryption using a master password.
+
+The module integrates with the `crypto_utils` module to handle key derivation
+and cryptographic operations based on the `cryptography` library. Encrypted data
+is stored in a text-safe format using Base64 encoding to ensure compatibility
+across different storage systems and text editors.
+
+Functions:
+    - write_json(contents, file, encrypt=True, master_password=None):
+        Serializes and writes JSON data to a file, optionally encrypting it
+        using a key derived from a master password.
+
+    - read_json(file, encrypted=True, master_password=None):
+        Reads JSON data from a file, optionally decrypting it using the same
+        master password and format produced by `write_json()`.
+
+Encryption Format:
+    When encryption is enabled, the file contents are stored as a single
+    Base64-encoded record in the following format:
+
+        <base64(salt)>:<base64(ciphertext)>
+
+    The salt is used to derive a unique encryption key for each file, ensuring
+    that identical passwords produce distinct encrypted outputs. The ciphertext
+    represents the encrypted JSON data.
+
+Notes:
+    - Attempting to encrypt or decrypt without providing a master password will
+      raise a ValueError.
+"""
 
 from toolbox import crypto_utils
 import pathlib, base64, json
+
+# NOTE: The functions are arranged alphabetically.
 
 def read_json(
     file: pathlib.Path,
