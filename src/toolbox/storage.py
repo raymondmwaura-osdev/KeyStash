@@ -2,17 +2,65 @@
 from toolbox import crypto_utils
 import pathlib, base64, json
 
-def read_json(file: pathlib.Path, encrypted: bool = True, master_password: bytes = None) -> list | dict:
+def read_json(
+    file: pathlib.Path,
+    encrypted: bool = True,
+    master_password: bytes = None
+) -> list | dict:
     """
-    Read the given JSON file.
-    The function converts the contents from a string to a Python object.
-    The return value can be a list or a dictionary depending on the JSON file.
-    The 'encrypted' parameter indicates if the contents of the JSON file are encrypted or not.
-    If the contents are encrypted, 'master_password' must be provided. It will be used
-    to decrypt the contents of the file. If the file is not encrypted, 'master_password' should be
-    None.
+    Read and deserialize JSON data from a file, optionally decrypting the contents.
+
+    This function reads the specified file and converts its contents back into
+    a Python object (list or dictionary). If the file is encrypted, the function
+    uses the provided master password to derive the decryption key and restore
+    the original JSON data. The function expects encrypted files to follow the
+    format produced by `write_json()`:
+
+        <base64(salt)>:<base64(ciphertext)>
+
+    Parameters:
+        file (pathlib.Path): The path to the JSON file to read.
+        encrypted (bool, optional): Indicates whether the file is encrypted.
+            Defaults to True.
+        master_password (bytes, optional): The master password used to derive
+            the decryption key. Must be provided if `encrypted` is True; should
+            be None otherwise.
+
+    Returns:
+        list | dict: The deserialized Python object (list or dictionary) loaded
+        from the JSON data.
+
+    Raises:
+        ValueError: If `encrypted` is True but no master password is provided.
+
+    Notes:
+        - Encrypted files must have been written using the corresponding
+          `write_json()` function with encryption enabled.
+        - When reading unencrypted files, the content is read and parsed as
+          plain JSON without any cryptographic processing.
     """
-    pass
+    contents = file.read_text()
+
+    if encrypted and master_password:
+        salt, encrypted_content = contents.split(":")
+
+        # Convert to original base64 decoded bytes string and decrypt.
+        salt = base64.b64decode(
+            salt.encode("utf-8")
+        )
+        encrypted_content = base64.b64decode(
+            encrypted_content.encode("utf-8")
+        )
+        contents = crypto_utils.decrypt(
+            encrypted_content,
+            master_password,
+            salt
+        ).decode("utf-8")
+
+    elif encrypted and not master_password:
+        raise ValueError("'master_password' is required when 'encrypted == True'.")
+
+    return json.loads(contents)
 
 def write_json(
     contents: list | dict,
@@ -42,7 +90,6 @@ def write_json(
 
     Raises:
         ValueError: If `encrypt` is True but no master password is provided.
-        TypeError: If `contents` is not serializable as JSON.
 
     Notes:
         - When encryption is disabled, the JSON text is written in plaintext.
