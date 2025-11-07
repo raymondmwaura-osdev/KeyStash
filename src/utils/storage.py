@@ -143,8 +143,8 @@ def write_json(
         salt = base64.b64encode(salt).decode("utf-8")
         encrypted_contents = base64.b64encode(encrypted_contents).decode("utf-8")
 
-        final = f"{salt}:{encrypted_contents}"
-        file.write_text(final)
+        final_content = f"{salt}:{encrypted_contents}"
+        file.write_text(final_content)
 
     elif encrypt and not master_password:
         raise ValueError("'master_password' is required when 'encrypt == True'.")
