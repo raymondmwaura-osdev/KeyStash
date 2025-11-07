@@ -33,7 +33,7 @@ Notes:
       raise a ValueError.
 """
 
-from toolbox import crypto_utils
+from utils import crypto_utils
 import pathlib, base64, json
 
 # NOTE: The functions are arranged alphabetically.
