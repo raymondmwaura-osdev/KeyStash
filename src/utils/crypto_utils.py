@@ -95,3 +95,12 @@ def generate_key(master_password: bytes, salt: bytes) -> bytes:
     key = base64.urlsafe_b64encode(key)
 
     return key
+
+def get_master_password():
+    """
+    Get the master password from the user.
+    Securely prompt for the password using 'getpass'.
+    Check if the password is correct by hashing the given password.
+    The hash should match the hash stored in the password file.
+    """
+    pass
