@@ -1,6 +1,6 @@
 from src.utils import constants, storage
 from datetime import date
-import pathlib, json
+import pathlib, json, sys
 
 class AddCredentials:
     def __init__(
@@ -11,7 +11,7 @@ class AddCredentials:
         email: str
     ):
         vault_encrypted = True
-        credentials = {
+        self.credentials = {
             "service": service,
             "password": password,
             "username": username,
@@ -20,35 +20,61 @@ class AddCredentials:
         }
 
         if not constants.VAULT.exists():
-            # Initialize VAULT with an empty list.
+            # Initialize VAULT with an empty list (not encrypted).
             vault_encrypted = False
             constants.VAULT.parent.mkdir(parents=True, exist_ok=True)
             constants.VAULT.write_text(
                 json.dumps([])
             )
 
-        vault_contents = storage.read_json(
+        self.vault_contents = storage.read_json(
             file=constants.VAULT,
             encrypted=vault_encrypted,
             master_password=constants.MASTER_PASSWORD
         )
 
-        print(vault_contents)
+        # Scan the vault for duplicates.
+        duplicate_scans = [
+            self.check_exact_duplicate
+        ]
+        if any(
+            scan()
+            for scan in duplicate_scans
+        ):
+            sys.exit()
 
+        print("No duplicates found.")
 
-def get_credentials(
-    all_credentials: list[dict],
+    def check_exact_duplicate(self) -> bool:
+        """Check if the vault contains an exact duplicate of the
+        credentials to save."""
+        duplicate_credentials = filter_credentials(
+            self.vault_contents,
+            service=self.credentials["service"],
+            password=self.credentials["password"],
+            username=self.credentials["username"],
+            email=self.credentials["email"]
+        )
+
+        if len(duplicate_credentials) == 0:
+            return False
+
+        print("Identical credentials already exist. No changes made.")
+        return True
+
+def filter_credentials(
+    credentials: list[dict],
     service: str | None = None,
     password: str | None = None,
     username: str | None = None,
     email: str | None = None
-) -> list[dict]:
+    ) -> list[dict]:
     """
-    Return all credentials from `all_credentials` that match
+    Return all credentials from `credentials` that match
     all non-None provided fields.
 
     Parameters:
-        all_credentials (list[dict]): A list of credential dictionaries.
+        credentials (list[dict]): A list of credential dictionaries.
         service (str, optional): Service name to match.
         password (str, optional): Password to match.
         username (str, optional): Username to match.
@@ -67,7 +93,7 @@ def get_credentials(
 
     return [
         cred
-        for cred in all_credentials
+        for cred in credentials
         if all(
             value is None or cred.get(field) == value
             for field, value in filters.items()
