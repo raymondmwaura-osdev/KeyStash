@@ -1,5 +1,5 @@
 from src.utils import constants
-from src.features import add
+from src.features.add import AddCredentials
 import argparse, getpass
 
 parser = argparse.ArgumentParser(prog="KeyStash")
@@ -22,7 +22,7 @@ args = parser.parse_args()
 constants.MASTER_PASSWORD = getpass.getpass("Enter master password: "
     ).encode(encoding="utf-8")
 if args.cmd == "add":
-    add.add_password(
+    AddCredentials(
         service=args.service,
         password=args.password,
         username=args.username,
