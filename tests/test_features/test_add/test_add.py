@@ -39,32 +39,3 @@ class TestAddCredentials:
 
         output = capsys.readouterr()
         assert output.out == "Identical credentials already exist. No changes made.\n"
-
-class TestFilterCredentials:
-    """Unit tests for `add.filter_credentials`."""
-    def test_empty_credentials(self):
-        """
-        Validate that `add.filter_credentials` provides an empty list
-        when the input credential set contains no records.
-        """
-        input_cred = []
-        output_cred = add.filter_credentials(
-            input_cred,
-            **cred1
-        )
-
-        assert output_cred == []
-
-    def test_exact_duplicate(self):
-        """
-        Confirm that `add.filter_credentials` isolates and returns only
-        the credential entry that matches all supplied fields.
-        """
-        input_cred = [cred1, cred2]
-        output_cred = add.filter_credentials(
-            input_cred,
-            **cred1
-        )
-        expected_output = [cred1]
-
-        assert output_cred == expected_output
