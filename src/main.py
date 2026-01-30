@@ -65,7 +65,8 @@ def run_command(cli_namespace):
         add.add(
             service=cli_namespace.service,
             username=cli_namespace.username,
-            email=cli_namespace.email
+            email=cli_namespace.email,
+            name=cli_namespace.name
         )
 
     elif cli_namespace.cmd == "search":

@@ -26,8 +26,13 @@ def build_cli(subparsers):
         dest="email", required=False, default=None,
         help="Email associated with the account."
     )
+    add_parser.add_argument(
+        "-n", "--name",
+        dest="name", required=False, default=None,
+        help="Unique name for the credential."
+    )
 
-def add(service: str, username: str, email: str) -> None:
+def add(service: str, username: str, email: str, name: str) -> None:
     """
     Add credential to the vault.
 
@@ -44,8 +49,11 @@ def add(service: str, username: str, email: str) -> None:
         "password": password,
         "username": username,
         "email": email,
-        "id": id
+        "id": id,
+        "name": name
     }
+
+    print(f"Name: {name}")
 
     # Write to vault.
     vault_contents.append(candidate)
