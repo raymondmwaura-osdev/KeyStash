@@ -83,7 +83,7 @@ def run_command(cli_namespace):
         remove.remove(int(cli_namespace.id))
 
     elif cli_namespace.cmd == "get":
-        get.get(int(cli_namespace.id))
+        get.get(cli_namespace)
 
 def verify_identity(cmd: None | str) -> str:
     """
