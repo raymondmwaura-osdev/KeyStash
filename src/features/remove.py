@@ -6,27 +6,44 @@ import sys
 
 def build_cli(subparsers):
     remove_parser = subparsers.add_parser("remove")
-    remove_parser.add_argument(
-        dest="id",
+    remove_parser_group = remove_parser.add_mutually_exclusive_group(required=True)
+    remove_parser_group.add_argument(
+        "-n", "--name",
+        dest="name", required=False, default=None,
+        help="'name' of the credential to remove. Use 'keystash search' to get it."
+    )
+    remove_parser_group.add_argument(
+        "--id", dest="id", type=int,
+        required=False, default=None,
         help="ID of the credential to remove. Use 'keystash search' to get it."
     )
 
-def remove(id: int) -> None:
+def remove(cli_namespace) -> None:
     """
-    Remove the credential with the given ID from the vault. Do nothing
-    if no credential with the given ID exists.
-
-    Parameters:
-        id: An integer ID of the credential to remove.
+    Remove credential from the vault. The credential is specified by either
+    'name' or 'id'. Do nothing if the credential doesn't exist.
     """
+    name = cli_namespace.name
+    id = cli_namespace.id
     credentials = storage.read_vault()
-    for cred in credentials:
-        if cred["id"] == id:
-            target = cred
-            break
-    else:
-        print(f"No credential with id {id} found!")
-        sys.exit()
+
+    if name:
+        for cred in credentials:
+            if cred["name"] == name.lower():
+                target = cred
+                break
+        else:
+            print(f"No credential with name '{name}' found.")
+            sys.exit()
+
+    elif id:
+        for cred in credentials:
+            if cred["id"] == id:
+                target = cred
+                break
+        else:
+            print(f"No credential with id {id} found!")
+            sys.exit()
 
     print("Removing the following credential:")
     print()

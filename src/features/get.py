@@ -14,7 +14,7 @@ def build_cli(subparsers):
     )
     get_subparser_group.add_argument(
         "--id",
-        dest="id", required=False, default=None,
+        dest="id", type=int, required=False, default=None,
         help="The ID of the credential with the desired password."
     )
 
@@ -27,7 +27,7 @@ def get(cli_namespace) -> None:
     is empty.
     """
     name = cli_namespace.name
-    id = int(cli_namespace.id)
+    id = cli_namespace.id
     credentials = storage.read_vault()
 
     if name:

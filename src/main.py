@@ -19,7 +19,7 @@ def build_cli():
     """
     Setup all CLI commands and options.
 
-    Return the top level parser got by `argparse.ArgumentParser()`.
+    Return the top level parser from `argparse.ArgumentParser()`.
     """
     parser = argparse.ArgumentParser(prog="KeyStash")
     parser.add_argument("-i", "--interactive",
@@ -80,7 +80,7 @@ def run_command(cli_namespace):
         passwd.passwd()
 
     elif cli_namespace.cmd == "remove":
-        remove.remove(int(cli_namespace.id))
+        remove.remove(cli_namespace)
 
     elif cli_namespace.cmd == "get":
         get.get(cli_namespace)
