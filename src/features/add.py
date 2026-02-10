@@ -50,7 +50,7 @@ def add(service: str, username: str, email: str, name: str) -> None:
         "username": username,
         "email": email,
         "id": id,
-        "name": name.lower()
+        "name": name.lower() if type(name) == str else name
     }
 
     print(f"Name: {name}")
