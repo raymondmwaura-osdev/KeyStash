@@ -62,12 +62,7 @@ def run_command(cli_namespace):
     Run the command given by the user.
     """
     if cli_namespace.cmd == "add":
-        add.add(
-            service=cli_namespace.service,
-            username=cli_namespace.username,
-            email=cli_namespace.email,
-            name=cli_namespace.name
-        )
+        add.add(cli_namespace)
 
     elif cli_namespace.cmd == "search":
         search.search(
