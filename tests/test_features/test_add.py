@@ -1,8 +1,27 @@
 # Unit tests for `src.features.add`.
+from types import SimpleNamespace
 from src.features import add
 import pytest
 
-def test_add(mocker):
+@pytest.mark.parametrize("new_credential", [
+    {
+        "service": "service2",
+        "username": "username2",
+        "email": "email2",
+        "password": "password2",
+        "id": 102,
+        "name": "name2"
+    },
+    {
+        "service": "service1",
+        "username": None,
+        "email": None,
+        "password": "password1",
+        "id": 101,
+        "name": None
+    }
+])
+def test_add(new_credential, mocker):
     """
     Assert that `add.add` adds the new credentials to the vault.
     """
@@ -12,16 +31,10 @@ def test_add(mocker):
             "username": "username1",
             "email": "email1",
             "password": "password1",
-            "id": 101
+            "id": 101,
+            "name": "name1"
         }
     ]
-    new_credential = {
-        "service": "service2",
-        "username": "username2",
-        "email": "email2",
-        "password": "password2",
-        "id": 102
-    }
     expected_output = vault_contents[:]
     expected_output.append(new_credential)
 
@@ -30,11 +43,14 @@ def test_add(mocker):
     mocker.patch("src.features.add.storage.read_vault", return_value=vault_contents)
     write_vault_mock = mocker.patch("src.features.add.storage.write_vault")
 
-    add.add(
-        new_credential["service"],
-        new_credential["username"],
-        new_credential["email"]
+    namespace = SimpleNamespace(
+        service = new_credential["service"],
+        username = new_credential["username"],
+        email = new_credential["email"],
+        name = new_credential["name"]
     )
+
+    add.add(namespace)
 
     write_vault_mock.assert_called_with(expected_output)
 
