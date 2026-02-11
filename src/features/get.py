@@ -21,7 +21,7 @@ def build_cli(subparsers):
 def get(cli_namespace) -> None:
     """
     Copy the password from the specified credential to the clipboard.
-    The password can be specified by 'name' or 'id'.
+    The credential can be specified by 'name' or 'id'.
 
     Do nothing if the credential doesn't exist or if the credentials list
     is empty.
