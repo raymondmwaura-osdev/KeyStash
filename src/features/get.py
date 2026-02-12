@@ -30,6 +30,10 @@ def get(cli_namespace) -> None:
     id = cli_namespace.id
     credentials = storage.read_vault()
 
+    if not credentials:
+        print("The vault is empty. Use 'keystash add' to save credentials to the vault.")
+        sys.exit()
+
     if name:
         for cred in credentials:
             if cred["name"] == name.lower():
