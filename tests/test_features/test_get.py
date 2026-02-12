@@ -1,4 +1,5 @@
 # Unit tests for `src.features.get`.
+from types import SimpleNamespace
 from src.features import get
 import pytest
 
@@ -6,40 +7,46 @@ class TestGet:
     """Unit tests for 'get.get'."""
     def test_empty_credentials(self, mocker, capsys):
         """
-        Verify that 'get' exits when an invalid ID is given or
-        when the credentials list is empty.
+        Verfiy that 'get' prints a message and exits when the vault is empty.
         """
         storage_read_mock = mocker.patch(
             "src.features.get.storage.read_vault",
             return_value = []
         )
+        namespace = SimpleNamespace(
+            name = "name",
+            id = None
+        )
 
         with pytest.raises(SystemExit):
-            get.get(328)
+            get.get(namespace)
 
         output = capsys.readouterr()
-        assert "No credential with ID 328 found!" in output.out
+        assert "The vault is empty. Use 'keystash add' to save credentials to the vault." in output.out
 
-    def test_valid_input(self, mocker, capsys):
+    def test_valid_id(self, mocker, capsys):
         """
-        Verify that 'get' copies the password to clipboard when a valid
+        Verify that 'get' copies the password to the clipboard when a valid
         ID is given.
         """
+        credential = {
+            "service": "service1",
+            "password": "StrongPassword123",
+            "username": None,
+            "email": None,
+            "name": "name1",
+            "id": 123
+        }
         copy_mock = mocker.patch("src.features.get.pyperclip.copy")
         storage_read_mock = mocker.patch(
             "src.features.get.storage.read_vault",
-            return_value = [{
-                "service": "service1",
-                "password": "StrongPassword123",
-                "username": None,
-                "email": None,
-                "id": 123
-            }]
+            return_value = [credential]
         )
+        
+        namespace = SimpleNamespace(id=credential["id"], name=None)
+        get.get(namespace)
 
-        get.get(123)
-
-        copy_mock.assert_called_with("StrongPassword123")
+        copy_mock.assert_called_with(credential["password"])
 
         output = capsys.readouterr()
         assert "Password copied to clipboard." in output.out
